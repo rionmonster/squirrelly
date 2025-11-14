@@ -1,0 +1,26 @@
+# API keys and secrets
+.env
+*.key
+*secret*
+
+# Build artifacts
+*.jar
+*.class
+target/
+build/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+

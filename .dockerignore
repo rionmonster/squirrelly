@@ -1,0 +1,10 @@
+.git
+.gitignore
+README.md
+*.md
+k8s/
+deploy.sh
+.gradle
+build
+src
+
