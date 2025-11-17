@@ -73,6 +73,7 @@
     </dependencies>
 
     <build>
+        <finalName>sample-job</finalName>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         

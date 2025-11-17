@@ -6,10 +6,10 @@ Squirrly is currently a work in progress that aims to provide a pattern for leve
 
 This project contains a minimal Flink streaming job that performs a series:
 - Generates random integers (1-100) continuously
-- Processes them through a map function (multiplies by 2 and adds 10)
+- Processes them through intentionally inefficient map functions
 - Writes the results to a DiscardingSink
 
-The job is packaged and deployed to Kubernetes with a single command, making local development and testing straightforward.
+To avoid an avalanche of scripts strewn about, the sample job is packaged and deployed to Kubernetes using the **Flink Kubernetes Operator** with a single command, making local development and testing straightforward. The operator automatically manages the Flink cluster lifecycle, job submission, and resource management.
 
 ## Prerequisites
 
@@ -46,9 +46,15 @@ Before running this project, ensure you have the following tools installed:
    kubectl version --client
    ```
 
+6. **Helm** - Package manager for Kubernetes (for installing Flink Kubernetes Operator)
+   ```bash
+   helm version
+   ```
+   **Note:** The deploy script will automatically install the Flink Kubernetes Operator if it's not already present.
+
 ## Installation
 
-1. **Start Minikube**
+1. **Start Minikube** (optional - the deploy script will start it automatically if needed)
    ```bash
    minikube start
    ```
@@ -58,21 +64,28 @@ Before running this project, ensure you have the following tools installed:
    minikube status
    ```
 
+**Note:** The Flink Kubernetes Operator will be automatically installed by the deploy script if it's not already present in your cluster.
+
 ## Running the Job
 
 Deploy the Flink job to Kubernetes with a single command:
 
 ```bash
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 This script will:
-1. Build the Kotlin Flink job
-2. Create the `squirrly` namespace in Kubernetes
-3. Deploy Flink JobManager and TaskManager
-4. Copy the JAR to both pods
-5. Submit the Flink job
+1. Check for and install the Flink Kubernetes Operator (if needed)
+2. Build the Kotlin Flink job
+3. Build the Docker image with the JAR
+4. Create the `squirrly` namespace in Kubernetes
+5. Deploy the Flink application using a FlinkDeployment custom resource
 6. Set up port forwarding for the Flink UI
+
+The Flink Kubernetes Operator will automatically:
+- Create and manage the Flink cluster (JobManager and TaskManager)
+- Submit the Flink job
+- Handle job lifecycle and resource management
 
 After deployment, the Flink UI will be available at:
 - **http://localhost:8081**
@@ -85,12 +98,12 @@ squirrly/
 │   └── SimpleFlinkJob.kt                 # Main Flink streaming job
 ├── k8s/
 │   ├── namespace.yaml                    # Kubernetes namespace
-│   ├── jobmanager-deployment.yaml        # Flink JobManager deployment
-│   ├── jobmanager-service.yaml           # Flink JobManager service
-│   └── taskmanager-deployment.yaml       # Flink TaskManager deployment
+│   └── sample-job/
+│       └── flink-deployment.yaml        # FlinkDeployment custom resource
 ├── pom.xml                               # Maven build configuration
 ├── Dockerfile                            # Docker image definition
-├── deploy.sh                             # Deployment script
+├── scripts/
+│   └── deploy.sh                         # Deployment script
 └── README.md                             # This file
 ```
 
@@ -98,12 +111,32 @@ squirrly/
 
 Once deployed, you can monitor the Flink job through the **Flink Web UI** at http://localhost:8081.
 
+### Checking FlinkDeployment Status
+
+```bash
+kubectl get flinkdeployment sample-job -n squirrly
+kubectl describe flinkdeployment sample-job -n squirrly
+```
+
 ## Cleanup
+
+To remove the Flink application:
+
+```bash
+kubectl delete flinkdeployment sample-job -n squirrly
+```
 
 To remove all resources:
 
 ```bash
 kubectl delete namespace squirrly
+```
+
+To remove the Flink Kubernetes Operator (if you installed it via the deploy script):
+
+```bash
+helm uninstall flink-kubernetes-operator -n flink-operator
+kubectl delete namespace flink-operator
 ```
 
 To stop minikube:

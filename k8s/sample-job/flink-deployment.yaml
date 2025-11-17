@@ -1,0 +1,28 @@
+apiVersion: flink.apache.org/v1beta1
+kind: FlinkDeployment
+metadata:
+  name: sample-job
+  namespace: squirrly
+spec:
+  image: squirrly-flink-job:latest
+  flinkVersion: v2_0
+  serviceAccount: sample-job
+  flinkConfiguration:
+    taskmanager.numberOfTaskSlots: "2"
+    parallelism.default: "2"
+    rest.profiling.enabled: "true"
+  jobManager:
+    resource:
+      memory: "2048m"
+      cpu: 1
+  taskManager:
+    resource:
+      memory: "2048m"
+      cpu: 1
+    replicas: 1
+  job:
+    jarURI: local:///opt/flink/lib/sample-job.jar
+    entryClass: dev.squirrly.SimpleFlinkJob
+    parallelism: 2
+    upgradeMode: stateless
+
