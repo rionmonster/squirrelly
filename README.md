@@ -97,15 +97,39 @@ squirrly/
 ├── src/main/kotlin/dev/squirrly/
 │   └── SimpleFlinkJob.kt                 # Main Flink streaming job
 ├── k8s/
-│   ├── namespace.yaml                    # Kubernetes namespace
-│   └── sample-job/
-│       └── flink-deployment.yaml        # FlinkDeployment custom resource
+│   ├── resources/                        # Shared infrastructure resources
+│   │   ├── namespace.yaml                # Kubernetes namespace
+│   │   ├── serviceaccount.yaml           # ServiceAccount (shared)
+│   │   ├── role.yaml                     # Role (shared)
+│   │   └── rolebinding.yaml              # RoleBinding (shared)
+│   ├── sample-job/
+│   │   └── flink-deployment.yaml        # FlinkDeployment custom resource
+│   └── squirrly-profiler/
+│       ├── job.yaml                      # Profiler Job
+│       ├── profiler.sh                   # Profiler script source
+│       └── README.md                     # Profiler documentation
 ├── pom.xml                               # Maven build configuration
 ├── Dockerfile                            # Docker image definition
 ├── scripts/
-│   └── deploy.sh                         # Deployment script
-└── README.md                             # This file
+│   ├── deploy.sh                         # Deployment script
+│   └── run-profiler.sh                   # Profiler runner script
+└── README.md                             # (this file)
 ```
+
+## Profiling
+
+To run the profiler and trigger profiling on the Flink job:
+
+```bash
+./scripts/run-profiler.sh
+```
+
+This will:
+1. Delete any existing profiler job
+2. Create a new profiler job
+3. Optionally follow the logs
+
+The profiler will trigger the Flink profiler on the TaskManager and wait for it to complete. See `k8s/squirrly-profiler/README.md` for more details.
 
 ## Monitoring
 

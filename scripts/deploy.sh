@@ -11,7 +11,7 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 cd "${PROJECT_ROOT}"
 
 NAMESPACE="squirrly"
-IMAGE_NAME="squirrly-flink-job"
+IMAGE_NAME="sample-job"
 IMAGE_TAG="latest"
 FLINK_UI_PORT=8081
 FLINK_DEPLOYMENT_NAME="sample-job"
@@ -93,9 +93,9 @@ echo "🐳 Building Docker image..."
 eval $(minikube docker-env)
 docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
-# Create namespace
-echo "📝 Creating namespace..."
-kubectl apply -f k8s/namespace.yaml
+# Create namespace and shared infrastructure resources
+echo "📦 Creating namespace and shared infrastructure resources..."
+kubectl apply -f k8s/resources/
 
 # Wait for namespace to be ready
 kubectl wait --for=condition=Active namespace/${NAMESPACE} --timeout=30s || true
@@ -104,12 +104,6 @@ kubectl wait --for=condition=Active namespace/${NAMESPACE} --timeout=30s || true
 echo "🧹 Cleaning up any existing FlinkDeployment..."
 kubectl delete flinkdeployment ${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE} 2>/dev/null || true
 kubectl wait --for=delete flinkdeployment/${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE} --timeout=60s 2>/dev/null || true
-
-# Deploy ServiceAccount and RBAC first
-echo "👤 Creating ServiceAccount and RBAC..."
-kubectl apply -f k8s/sample-job/serviceaccount.yaml
-kubectl apply -f k8s/sample-job/role.yaml
-kubectl apply -f k8s/sample-job/rolebinding.yaml
 
 # Deploy Flink application using FlinkDeployment
 echo "🚀 Deploying Flink application via FlinkDeployment..."

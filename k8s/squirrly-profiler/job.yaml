@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: squirrly-profiler
+  namespace: squirrly
+spec:
+  ttlSecondsAfterFinished: 3600  # Keep job for 1 hour after completion
+  template:
+    metadata:
+      labels:
+        app: squirrly-profiler
+    spec:
+      serviceAccountName: squirrly-service-account
+      restartPolicy: OnFailure
+      containers:
+      - name: profiler
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash"]
+        args:
+        - -c
+        - |
+          /scripts/profiler.sh
+        env:
+        - name: NAMESPACE
+          value: "squirrly"
+        - name: FLINK_DEPLOYMENT_NAME
+          value: "sample-job"  
+        - name: PROFILER_TYPE
+          value: "ITIMER" 
+        - name: PROFILER_DURATION
+          value: "60" 
+        - name: ENABLE_PROFILER
+          value: "true"
+        - name: PROFILER_OUTPUT_DIR
+          value: "/tmp /opt/flink/log /opt/flink"  # Directories to search for artifacts (space-separated)
+        volumeMounts:
+        - name: profiler-script
+          mountPath: /scripts
+          readOnly: true
+      volumes:
+      - name: profiler-script
+        configMap:
+          name: squirrly-profiler-script
+          defaultMode: 0755
+

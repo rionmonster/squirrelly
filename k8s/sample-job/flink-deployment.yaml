@@ -4,9 +4,9 @@ metadata:
   name: sample-job
   namespace: squirrly
 spec:
-  image: squirrly-flink-job:latest
+  image: sample-job:latest
   flinkVersion: v2_0
-  serviceAccount: sample-job
+  serviceAccount: squirrly-service-account
   flinkConfiguration:
     taskmanager.numberOfTaskSlots: "2"
     parallelism.default: "2"
