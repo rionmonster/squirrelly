@@ -57,9 +57,30 @@ The profiler can be configured via environment variables in the Job:
 - `FLINK_DEPLOYMENT_NAME`: Name of the FlinkDeployment to profile - default: sample-job
 - `PROFILER_TYPE`: Type of profiler (CPU, ITIMER, or ALLOC) - default: ITIMER
 - `PROFILER_DURATION`: Duration in seconds - default: 60
-- `ENABLE_PROFILER`: Enable/disable profiler triggering - default: true
 - `NAMESPACE`: Namespace to monitor - default: squirrly
 - `PROFILER_OUTPUT_DIR`: Space-separated list of directories to search for profiler artifacts - default: "/tmp /opt/flink/log /opt/flink"
+- `API_PROVIDER`: API provider for analysis - default: "openai" (may add additional ones later)
+- `OPENAI_API_KEY`: OpenAI API key for analysis (can be set from local environment when running `run-profiler.sh`)
+- `ANALYSIS_PROMPT_FILE`: Path to prompt file - default: "/scripts/prompt.md"
+
+The analysis prompt is stored in `k8s/squirrly-profiler/prompt.md` and can be edited separately from the profiler script. 
+
+## Analysis
+
+Analysis is **always performed** when a profiler artifact is found and the API key is configured. The profiler will:
+
+1. Read the prompt from `prompt.md`
+2. Read the artifact HTML content from the TaskManager pod
+3. Submit both to the configured API provider (currently OpenAI)
+4. Display the analysis results in the profiler logs
+
+To enable analysis, set the `OPENAI_API_KEY` environment variable when running the profiler:
+
+```bash
+OPENAI_API_KEY=your-key-here ./scripts/run-profiler.sh
+```
+
+The script supports multiple API providers via the `API_PROVIDER` environment variable. Currently only `openai` is supported, but the architecture allows for easy extension to other providers.
 
 To change configuration, edit the Job:
 
@@ -73,10 +94,11 @@ kubectl edit job squirrly-profiler -n squirrly
 2. For the deployment:
    - Finds the JobManager pod
    - Retrieves running job information via REST API
-   - Triggers the Flink Profiler on the first vertex
+   - Triggers the Flink Profiler on the TaskManager
    - Waits for profiler to complete
-   - Checks for profiler artifacts
-   - (TODO: Upload artifacts to LLM du jour for further analysis)
+   - Finds the profiler artifact matching this run
+   - Submits artifact and prompt to API provider for analysis
+   - Displays analysis results in the logs
 
 ## RBAC
 

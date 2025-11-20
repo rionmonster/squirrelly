@@ -24,15 +24,19 @@ spec:
         - name: NAMESPACE
           value: "squirrly"
         - name: FLINK_DEPLOYMENT_NAME
-          value: "sample-job"  
+          value: "sample-job"
         - name: PROFILER_TYPE
           value: "ITIMER" 
         - name: PROFILER_DURATION
           value: "60" 
-        - name: ENABLE_PROFILER
-          value: "true"
         - name: PROFILER_OUTPUT_DIR
           value: "/tmp /opt/flink/log /opt/flink"  # Directories to search for artifacts (space-separated)
+        - name: API_PROVIDER
+          value: "openai"  # API provider: openai (others can be added later)
+        - name: OPENAI_API_KEY
+          value: ""  # OpenAI API key (can be set from local environment)
+        - name: ANALYSIS_PROMPT_FILE
+          value: "/scripts/prompt.md"  # Path to prompt file
         volumeMounts:
         - name: profiler-script
           mountPath: /scripts

@@ -107,6 +107,7 @@ squirrly/
 │   └── squirrly-profiler/
 │       ├── job.yaml                      # Profiler Job
 │       ├── profiler.sh                   # Profiler script source
+│       ├── prompt.md                     # Analysis prompt (editable)
 │       └── README.md                     # Profiler documentation
 ├── pom.xml                               # Maven build configuration
 ├── Dockerfile                            # Docker image definition
