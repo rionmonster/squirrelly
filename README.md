@@ -111,6 +111,8 @@ squirrly/
 │       ├── profiler.sh                   # Profiler script source
 │       ├── prompt.md                     # Analysis prompt (editable)
 │       └── README.md                     # Profiler documentation
+├── images/
+│   └── squirrly-flow.png                # Flow diagram
 ├── pom.xml                               # Maven build configuration
 ├── Dockerfile                            # Docker image definition
 ├── scripts/
