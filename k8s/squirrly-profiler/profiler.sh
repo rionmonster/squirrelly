@@ -17,7 +17,7 @@ echo "Target FlinkDeployment: ${FLINK_DEPLOYMENT_NAME}"
 echo ""
 
 # Verify FlinkDeployment exists
-if ! kubectl get flinkdeployment ${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+if ! kubectl get flinkdeployment ${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE} > /dev/null 2>&1; then
     echo "❌ FlinkDeployment '${FLINK_DEPLOYMENT_NAME}' not found in namespace ${NAMESPACE}"
     exit 1
 fi
@@ -29,7 +29,7 @@ echo "📊 Processing FlinkDeployment: ${DEPLOYMENT_NAME}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Get JobManager pod
-JOBMANAGER_POD=$(kubectl get pods -n ${NAMESPACE} \
+JOBMANAGER_POD=$(kubectl get pods --namespace ${NAMESPACE} \
     -l app=${DEPLOYMENT_NAME},component=jobmanager \
     -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
 
@@ -45,14 +45,14 @@ REST_SERVICE="${DEPLOYMENT_NAME}-rest"
 REST_URL="http://${REST_SERVICE}:8081"
 
 # Check if REST service is available
-if ! kubectl get service ${REST_SERVICE} -n ${NAMESPACE} > /dev/null 2>&1; then
+if ! kubectl get service ${REST_SERVICE} --namespace ${NAMESPACE} > /dev/null 2>&1; then
     echo "❌ REST service ${REST_SERVICE} not found"
     exit 1
 fi
 
 # Get job information
 echo "🔍 Fetching job information..."
-JOB_LIST=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+JOB_LIST=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
     curl -s ${REST_URL}/jobs 2>/dev/null || echo "")
 
 if [ -z "$JOB_LIST" ]; then
@@ -73,7 +73,7 @@ echo "✅ Found running job: ${JOB_ID}"
 
 # Get job details to find vertices
 echo "🔍 Fetching job details to find vertices..."
-JOB_DETAILS=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+JOB_DETAILS=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
     curl -s ${REST_URL}/jobs/${JOB_ID} 2>/dev/null || echo "")
 
 if [ -z "$JOB_DETAILS" ]; then
@@ -104,7 +104,7 @@ echo "   Type: ${PROFILER_TYPE}"
 echo "   Duration: ${PROFILER_DURATION} seconds"
 
 # Get TaskManager ID (use the first available TaskManager)
-TASKMANAGER_ID=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+TASKMANAGER_ID=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
     curl -s ${REST_URL}/taskmanagers 2>/dev/null | \
     grep -oE '"id":"[^"]+"' | head -1 | cut -d'"' -f4 || echo "")
 
@@ -124,7 +124,7 @@ echo "   Profiler run timestamp: ${PROFILER_START_TIME}"
 PROFILER_ENDPOINT="${REST_URL}/taskmanagers/${TASKMANAGER_ID}/profiler"
 PROFILER_JSON="{\"mode\":\"${PROFILER_TYPE}\",\"duration\":${PROFILER_DURATION}}"
 
-PROFILER_RESPONSE=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+PROFILER_RESPONSE=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
     curl -s -w "\nHTTP_CODE:%{http_code}" -X POST \
     -H "Content-Type: application/json" \
     -d "${PROFILER_JSON}" \
@@ -134,11 +134,11 @@ PROFILER_RESPONSE=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
 HTTP_CODE=$(echo "$PROFILER_RESPONSE" | grep "HTTP_CODE:" | cut -d: -f2 || echo "")
 RESPONSE_BODY=$(echo "$PROFILER_RESPONSE" | sed '/HTTP_CODE:/d' || echo "")
 
-if [ -n "$HTTP_CODE" ]; then
+if [ --namespace "$HTTP_CODE" ]; then
     echo "   HTTP Status Code: ${HTTP_CODE}"
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
         echo "   ✅ Profiler triggered successfully"
-        if [ -n "$RESPONSE_BODY" ]; then
+        if [ --namespace "$RESPONSE_BODY" ]; then
             echo "   Response: $RESPONSE_BODY"
             # Check if response contains artifact path information
             if echo "$RESPONSE_BODY" | grep -q "path\|file\|artifact"; then
@@ -155,7 +155,7 @@ if [ -n "$HTTP_CODE" ]; then
         echo "   📦 Checking for profiler artifacts on TaskManager pods..."
         
         # Get TaskManager pods
-        TASKMANAGER_PODS=$(kubectl get pods -n ${NAMESPACE} \
+        TASKMANAGER_PODS=$(kubectl get pods --namespace ${NAMESPACE} \
             -l app=${DEPLOYMENT_NAME},component=taskmanager \
             -o jsonpath='{.items[*].metadata.name}' 2>/dev/null || echo "")
         
@@ -180,23 +180,23 @@ if [ -n "$HTTP_CODE" ]; then
                            -name '*${PROFILER_TYPE}*.html' \) \
                         2>/dev/null | sort -r | head -5"
                     
-                    ARTIFACTS=$(kubectl exec -n ${NAMESPACE} ${TM_POD} -- \
+                    ARTIFACTS=$(kubectl exec --namespace ${NAMESPACE} ${TM_POD} -- \
                         sh -c "${FIND_CMD}" 2>/dev/null || echo "")
                     
-                    if [ -n "$ARTIFACTS" ]; then
+                    if [ --namespace "$ARTIFACTS" ]; then
                         ARTIFACT_LIST=$(echo "$ARTIFACTS" | grep -v '^$' || echo "")
-                        if [ -n "$ARTIFACT_LIST" ]; then
+                        if [ --namespace "$ARTIFACT_LIST" ]; then
                             # Get the most recent artifact (first in sorted list)
                             LATEST_ARTIFACT=$(echo "$ARTIFACT_LIST" | head -1)
                             
-                            if [ -n "$LATEST_ARTIFACT" ]; then
+                            if [ --namespace "$LATEST_ARTIFACT" ]; then
                                 if [ "$ARTIFACTS_FOUND" = "false" ]; then
                                     echo "   ✅ Found profiler artifact!"
                                     ARTIFACTS_FOUND=true
                                 fi
                                 
                                 # Get file info for the latest artifact
-                                FILE_INFO=$(kubectl exec -n ${NAMESPACE} ${TM_POD} -- \
+                                FILE_INFO=$(kubectl exec --namespace ${NAMESPACE} ${TM_POD} -- \
                                     sh -c "stat -c'%s|%y' '$LATEST_ARTIFACT' 2>/dev/null || stat -f'%z|%Sm' '$LATEST_ARTIFACT' 2>/dev/null || echo 'unknown|unknown'" 2>/dev/null || echo "unknown|unknown")
                                 SIZE=$(echo "$FILE_INFO" | cut -d'|' -f1)
                                 MTIME=$(echo "$FILE_INFO" | cut -d'|' -f2)
@@ -221,7 +221,7 @@ if [ -n "$HTTP_CODE" ]; then
                     echo "   ✅ Profiler completed successfully! Artifacts generated."
                     
                     # Submit artifact to API for analysis
-                    if [ -n "$LATEST_ARTIFACT" ]; then
+                    if [ --namespace "$LATEST_ARTIFACT" ]; then
                         echo ""
                         echo "   📤 Submitting artifact to ${API_PROVIDER} for analysis..."
                         
@@ -244,7 +244,7 @@ if [ -n "$HTTP_CODE" ]; then
                                         JSON_PAYLOAD_TEMP="/tmp/profiler_api_$(date +%s).json"
                                         
                                         # Get artifact size for verification
-                                        ARTIFACT_SIZE=$(kubectl exec -n ${NAMESPACE} ${TM_POD} -- \
+                                        ARTIFACT_SIZE=$(kubectl exec --namespace ${NAMESPACE} ${TM_POD} -- \
                                             sh -c "wc -c < ${LATEST_ARTIFACT}" 2>/dev/null || echo "0")
                                         
                                         if [ "$ARTIFACT_SIZE" = "0" ] || [ -z "$ARTIFACT_SIZE" ]; then
@@ -256,16 +256,16 @@ if [ -n "$HTTP_CODE" ]; then
                                         
                                         # Copy artifact directly from TaskManager to JobManager pod
                                         # Use kubectl cp or direct cat through pipe to avoid shell variable limits
-                                        kubectl exec -n ${NAMESPACE} ${TM_POD} -- \
+                                        kubectl exec --namespace ${NAMESPACE} ${TM_POD} -- \
                                             cat "${LATEST_ARTIFACT}" 2>/dev/null | \
-                                            kubectl exec -i -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                            kubectl exec -i --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "cat > ${ARTIFACT_FILE}" 2>/dev/null || {
                                                 echo "   ⚠️ Failed to copy artifact content to JobManager pod"
                                                 continue
                                             }
                                         
                                         # Verify artifact was written correctly
-                                        VERIFIED_SIZE=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                        VERIFIED_SIZE=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "wc -c < ${ARTIFACT_FILE}" 2>/dev/null || echo "0")
                                         
                                         if [ "$VERIFIED_SIZE" != "$ARTIFACT_SIZE" ]; then
@@ -276,7 +276,7 @@ if [ -n "$HTTP_CODE" ]; then
                                         echo "   ✅ Artifact copied successfully (${VERIFIED_SIZE} bytes verified)"
                                         
                                         # Write prompt to file
-                                        echo "$ANALYSIS_PROMPT" | kubectl exec -i -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                        echo "$ANALYSIS_PROMPT" | kubectl exec -i --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "cat > ${PROMPT_FILE}" 2>/dev/null || {
                                                 echo "   ⚠️ Failed to write prompt to JobManager pod"
                                                 continue
@@ -286,21 +286,21 @@ if [ -n "$HTTP_CODE" ]; then
                                         # Use -Rs (raw input, slurp) to read stdin as a single string
                                         # The input is available as . (dot) in the jq expression
                                         echo "   🔨 Building JSON payload..."
-                                        if ! kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                        if ! kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "PROMPT=\$(cat ${PROMPT_FILE}); ARTIFACT=\$(cat ${ARTIFACT_FILE}); echo -e \"\${PROMPT}\n\nFlamegraph HTML content:\n\${ARTIFACT}\" | jq -Rs '{model: \"gpt-4o\", messages: [{role: \"user\", content: .}], temperature: 0.7, max_tokens: 2000}' > ${JSON_PAYLOAD_TEMP}" 2>&1; then
                                             echo "   ⚠️ Failed to build API payload with jq"
                                             echo "   Debug: Checking if files exist and jq is available..."
-                                            kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                            kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                                 sh -c "ls -lh ${PROMPT_FILE} ${ARTIFACT_FILE} 2>&1; command -v jq 2>&1; jq --version 2>&1" 2>&1 | head -10
                                             continue
                                         fi
                                         
                                         # Verify JSON payload contains artifact content
-                                        PAYLOAD_SIZE=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                        PAYLOAD_SIZE=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "wc -c < ${JSON_PAYLOAD_TEMP}" 2>/dev/null || echo "0")
                                         
                                         # Check if payload contains "Flamegraph HTML content" marker
-                                        if ! kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                        if ! kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "grep -q 'Flamegraph HTML content' ${JSON_PAYLOAD_TEMP}" 2>/dev/null; then
                                             echo "   ⚠️ Warning: JSON payload may not contain artifact content (marker not found)"
                                         else
@@ -316,17 +316,17 @@ if [ -n "$HTTP_CODE" ]; then
                                         CURL_CMD="${CURL_CMD} -d @${JSON_PAYLOAD_TEMP}"
                                         CURL_CMD="${CURL_CMD} 'https://api.openai.com/v1/chat/completions'"
                                         
-                                        API_RESPONSE=$(kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                        API_RESPONSE=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "${CURL_CMD}" 2>/dev/null || echo "")
                                         
                                         # Clean up temp files
-                                        kubectl exec -n ${NAMESPACE} ${JOBMANAGER_POD} -- \
+                                        kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
                                             sh -c "rm -f ${ARTIFACT_FILE} ${PROMPT_FILE} ${JSON_PAYLOAD_TEMP}" 2>/dev/null || true
                                         
                                         HTTP_CODE=$(echo "$API_RESPONSE" | grep "HTTP_CODE:" | cut -d: -f2 || echo "")
                                         RESPONSE_BODY=$(echo "$API_RESPONSE" | sed '/HTTP_CODE:/d' || echo "")
                                         
-                                        if [ -n "$HTTP_CODE" ]; then
+                                        if [ --namespace "$HTTP_CODE" ]; then
                                             echo "   HTTP Status Code: ${HTTP_CODE}"
                                             if [ "$HTTP_CODE" = "200" ]; then
                                                 echo "   ✅ Analysis request submitted successfully"
@@ -338,7 +338,7 @@ if [ -n "$HTTP_CODE" ]; then
                                                 else
                                                     # Try to extract content using grep/sed if jq not available
                                                     EXTRACTED_CONTENT=$(echo "$RESPONSE_BODY" | grep -o '"content":"[^"]*"' | head -1 | cut -d'"' -f4 || echo "")
-                                                    if [ -n "$EXTRACTED_CONTENT" ]; then
+                                                    if [ --namespace "$EXTRACTED_CONTENT" ]; then
                                                         echo "$EXTRACTED_CONTENT" | sed 's/\\n/\n/g'
                                                     else
                                                         echo "$RESPONSE_BODY" | head -50
@@ -346,13 +346,13 @@ if [ -n "$HTTP_CODE" ]; then
                                                 fi
                                             else
                                                 echo "   ❌ OpenAI API request failed with status ${HTTP_CODE}"
-                                                if [ -n "$RESPONSE_BODY" ]; then
+                                                if [ --namespace "$RESPONSE_BODY" ]; then
                                                     echo "   Error response: $RESPONSE_BODY"
                                                 fi
                                             fi
                                         else
                                             echo "   ⚠️ Could not get HTTP response from OpenAI API"
-                                            if [ -n "$API_RESPONSE" ]; then
+                                            if [ --namespace "$API_RESPONSE" ]; then
                                                 echo "   Response: $API_RESPONSE"
                                             fi
                                         fi
@@ -382,13 +382,13 @@ if [ -n "$HTTP_CODE" ]; then
         fi
     else
         echo "   ❌ Profiler endpoint returned error status: ${HTTP_CODE}"
-        if [ -n "$RESPONSE_BODY" ]; then
+        if [ --namespace "$RESPONSE_BODY" ]; then
             echo "   Error response: $RESPONSE_BODY"
         fi
     fi
 else
     echo "   ⚠️ Could not trigger profiler (no HTTP response)"
-    if [ -n "$PROFILER_RESPONSE" ]; then
+    if [ --namespace "$PROFILER_RESPONSE" ]; then
         echo "   Response: $PROFILER_RESPONSE"
     fi
 fi

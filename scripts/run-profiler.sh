@@ -19,15 +19,15 @@ kubectl create configmap squirrly-profiler-script \
     --dry-run=client -o yaml | kubectl apply -f -
 
 # Delete existing job if it exists
-if kubectl get job ${JOB_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+if kubectl get job ${JOB_NAME} --namespace ${NAMESPACE} > /dev/null 2>&1; then
     echo "🧹 Deleting existing profiler job..."
-    kubectl delete job ${JOB_NAME} -n ${NAMESPACE} > /dev/null 2>&1
+    kubectl delete job ${JOB_NAME} --namespace ${NAMESPACE} > /dev/null 2>&1
     sleep 2
 fi
 
 # Apply the job (with API key if provided)
 echo "🚀 Creating new profiler job..."
-if [ -n "$OPENAI_API_KEY" ]; then
+if [ --namespace "$OPENAI_API_KEY" ]; then
     echo "🔑 OPENAI_API_KEY found in environment, injecting into job..."
     # Create temporary job file with API key substituted
     TEMP_JOB=$(mktemp)
@@ -65,11 +65,11 @@ fi
 sleep 5
 
 # Check if job was created successfully
-if kubectl get job ${JOB_NAME} -n ${NAMESPACE} > /dev/null 2>&1; then
+if kubectl get job ${JOB_NAME} --namespace ${NAMESPACE} > /dev/null 2>&1; then
     echo "✅ Profiler job created successfully"
     echo ""
     echo "📊 Job status:"
-    kubectl get job ${JOB_NAME} -n ${NAMESPACE}
+    kubectl get job ${JOB_NAME} --namespace ${NAMESPACE}
     echo ""
 else
     echo "❌ Failed to create profiler job"

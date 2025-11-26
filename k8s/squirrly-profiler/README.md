@@ -2,6 +2,8 @@
 
 The Squirrly Profiler is a one-off Kubernetes Job that discovers FlinkDeployments, triggers the Flink Profiler, and retrieves profiler artifacts.
 
+![Squirrly Flow](../../images/squirrly-flow.png)
+
 ## Deployment
 
 Deploy shared infrastructure resources first (if not already deployed):
@@ -32,22 +34,22 @@ kubectl create configmap squirrly-profiler-script \
 1. Delete and recreate:
 ```bash
 # Delete existing job
-kubectl delete job squirrly-profiler -n squirrly
+kubectl delete job squirrly-profiler --namespace squirrly
 
 # Create new job
 kubectl apply -f k8s/squirrly-profiler/job.yaml
 
 # Watch the logs
-kubectl logs -n squirrly -f job/squirrly-profiler
+kubectl logs --namespace squirrly -f job/squirrly-profiler
 ```
 
 2. Create a new job:
 ```bash
 # Create a new job instance
-kubectl create job --from=job/squirrly-profiler squirrly-profiler-$(date +%Y%m%d-%H%M%S) -n squirrly
+kubectl create job --from=job/squirrly-profiler squirrly-profiler-$(date +%Y%m%d-%H%M%S) --namespace squirrly
 
 # Follow logs
-kubectl logs -n squirrly -f job/squirrly-profiler-<timestamp>
+kubectl logs --namespace squirrly -f job/squirrly-profiler-<timestamp>
 ```
 
 ## Configuration
@@ -85,7 +87,7 @@ The script supports multiple API providers via the `API_PROVIDER` environment va
 To change configuration, edit the Job:
 
 ```bash
-kubectl edit job squirrly-profiler -n squirrly
+kubectl edit job squirrly-profiler --namespace squirrly
 ```
 
 ## What It Does

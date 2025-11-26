@@ -38,9 +38,9 @@ OPERATOR_INSTALLED=false
 # Check if CRD exists (CRDs are cluster-scoped, no namespace needed)
 if kubectl get crd flinkdeployments.flink.apache.org > /dev/null 2>&1; then
     # Check if operator deployment actually exists and is running
-    if kubectl get deployment flink-kubernetes-operator -n flink-operator > /dev/null 2>&1; then
+    if kubectl get deployment flink-kubernetes-operator --namespace flink-operator > /dev/null 2>&1; then
         # Check if deployment is ready
-        if kubectl get deployment flink-kubernetes-operator -n flink-operator -o jsonpath='{.status.readyReplicas}' 2>/dev/null | grep -q "1"; then
+        if kubectl get deployment flink-kubernetes-operator --namespace flink-operator -o jsonpath='{.status.readyReplicas}' 2>/dev/null | grep -q "1"; then
             OPERATOR_INSTALLED=true
         fi
     fi
@@ -68,7 +68,7 @@ if [ "$OPERATOR_INSTALLED" = false ]; then
     }
     
     echo "⏳ Waiting for operator to be ready..."
-    kubectl wait --for=condition=available --timeout=120s deployment/flink-kubernetes-operator -n flink-operator || {
+    kubectl wait --for=condition=available --timeout=120s deployment/flink-kubernetes-operator --namespace flink-operator || {
         echo "⚠️ Operator may still be starting. Continuing..."
     }
 else
@@ -102,8 +102,8 @@ kubectl wait --for=condition=Active namespace/${NAMESPACE} --timeout=30s || true
 
 # Delete existing FlinkDeployment if it exists (for clean redeployment)
 echo "🧹 Cleaning up any existing FlinkDeployment..."
-kubectl delete flinkdeployment ${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE} 2>/dev/null || true
-kubectl wait --for=delete flinkdeployment/${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE} --timeout=60s 2>/dev/null || true
+kubectl delete flinkdeployment ${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE} 2>/dev/null || true
+kubectl wait --for=delete flinkdeployment/${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE} --timeout=60s 2>/dev/null || true
 
 # Deploy Flink application using FlinkDeployment
 echo "🚀 Deploying Flink application via FlinkDeployment..."
@@ -111,10 +111,10 @@ kubectl apply -f k8s/sample-job/flink-deployment.yaml
 
 # Wait for FlinkDeployment to be ready
 echo "⏳ Waiting for FlinkDeployment to be ready..."
-kubectl wait --for=condition=ready --timeout=300s flinkdeployment/${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE} || {
+kubectl wait --for=condition=ready --timeout=300s flinkdeployment/${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE} || {
     echo "⚠️ FlinkDeployment may still be starting. Checking status..."
-    kubectl get flinkdeployment ${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE}
-    kubectl describe flinkdeployment ${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE} | tail -20
+    kubectl get flinkdeployment ${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE}
+    kubectl describe flinkdeployment ${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE} | tail -20
 }
 
 # Get the JobManager service name (operator creates service with deployment name)
@@ -123,7 +123,7 @@ JOBMANAGER_SERVICE="${FLINK_DEPLOYMENT_NAME}-rest"
 # Wait for JobManager service to be available
 echo "⏳ Waiting for JobManager service..."
 for i in {1..30}; do
-    if kubectl get service ${JOBMANAGER_SERVICE} -n ${NAMESPACE} > /dev/null 2>&1; then
+    if kubectl get service ${JOBMANAGER_SERVICE} --namespace ${NAMESPACE} > /dev/null 2>&1; then
         echo "✅ JobManager service is available"
         break
     fi
@@ -136,7 +136,7 @@ echo "🔌 Setting up port forwarding for Flink UI..."
 lsof -ti:${FLINK_UI_PORT} | xargs kill -9 2>/dev/null || true
 sleep 1
 
-kubectl port-forward -n ${NAMESPACE} service/${JOBMANAGER_SERVICE} ${FLINK_UI_PORT}:8081 > /dev/null 2>&1 &
+kubectl port-forward --namespace ${NAMESPACE} service/${JOBMANAGER_SERVICE} ${FLINK_UI_PORT}:8081 > /dev/null 2>&1 &
 PORT_FORWARD_PID=$!
 
 # Wait a moment for port forwarding to establish
@@ -151,11 +151,11 @@ else
     echo ""
     echo "📊 Flink UI is available at: http://localhost:${FLINK_UI_PORT}"
     echo "🛑 To stop port forwarding, run: kill ${PORT_FORWARD_PID}"
-    echo "🗑️ To clean up, run: kubectl delete flinkdeployment ${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE}"
+    echo "🗑️ To clean up, run: kubectl delete flinkdeployment ${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE}"
     echo "   Or delete namespace: kubectl delete namespace ${NAMESPACE}"
     echo ""
     echo "📋 Check FlinkDeployment status:"
-    echo "   kubectl get flinkdeployment ${FLINK_DEPLOYMENT_NAME} -n ${NAMESPACE}"
+    echo "   kubectl get flinkdeployment ${FLINK_DEPLOYMENT_NAME} --namespace ${NAMESPACE}"
     echo ""
 fi
 

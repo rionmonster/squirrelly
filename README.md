@@ -1,19 +1,21 @@
 # Squirrly - AI-Boosted Profiling for Apache Flink on Kubernetes
 
-Squirrly is currently a work in progress that aims to provide a pattern for leveraging the existing profiling mechanisms in conjunction with AI tooling to identify and address potential bottlenecks within running jobs.
+Squirrly is currently a work in progress that aims to provide a pattern (or patterns) for leveraging the existing profiling mechanisms in conjunction with AI tooling to identify and address potential bottlenecks within running jobs.
+
+![Squirrly Flow](images/squirrly-flow.png)
 
 ## Overview
 
 This project contains a minimal Flink streaming job that performs a series:
 - Generates random integers (1-100) continuously
-- Processes them through intentionally inefficient map functions
-- Writes the results to a DiscardingSink
+- Processes them through intentionally inefficient map functions (e.g., one with random `Thread.sleep()` operations)
+- Writes the results to a DiscardingSink (for simplicity only)
 
-To avoid an avalanche of scripts strewn about, the sample job is packaged and deployed to Kubernetes using the **Flink Kubernetes Operator** with a single command, making local development and testing straightforward. The operator automatically manages the Flink cluster lifecycle, job submission, and resource management.
+To avoid an avalanche of scripts strewn about, the sample job is packaged and deployed to Kubernetes using the **Flink Kubernetes Operator** with a single command, making local development and infrastructure as minimal as possible (after all this is just a playground).
 
 ## Prerequisites
 
-Before running this project, ensure you have the following tools installed:
+You will need a handful of tools installed on your machine (or available in the expected environment) before playing around, namely:
 
 1. **Java 21** - Required for building and running the Flink job
    ```bash
@@ -23,7 +25,7 @@ Before running this project, ensure you have the following tools installed:
    **Note:** Make sure Maven is using Java 21. If you have multiple Java versions installed, you may need to set `JAVA_HOME`:
    ```bash
    export JAVA_HOME=$(/usr/libexec/java_home -v 21)
-   mvn --version  # Verify Maven is using Java 21
+   mvn --version  
    ```
 
 2. **Maven** - Build tool
@@ -68,7 +70,7 @@ Before running this project, ensure you have the following tools installed:
 
 ## Running the Job
 
-Deploy the Flink job to Kubernetes with a single command:
+To initially test things out and deploy the sample Flink job to your local Kubernetes, you just need to run the following command:
 
 ```bash
 ./scripts/deploy.sh
@@ -87,7 +89,7 @@ The Flink Kubernetes Operator will automatically:
 - Submit the Flink job
 - Handle job lifecycle and resource management
 
-After deployment, the Flink UI will be available at:
+After deploying, you should be able to access the Flink UI for the job running at:
 - **http://localhost:8081**
 
 ## Project Structure
@@ -139,8 +141,8 @@ Once deployed, you can monitor the Flink job through the **Flink Web UI** at htt
 ### Checking FlinkDeployment Status
 
 ```bash
-kubectl get flinkdeployment sample-job -n squirrly
-kubectl describe flinkdeployment sample-job -n squirrly
+kubectl get flinkdeployment sample-job --namespace squirrly
+kubectl describe flinkdeployment sample-job --namespace squirrly
 ```
 
 ## Cleanup
@@ -148,7 +150,7 @@ kubectl describe flinkdeployment sample-job -n squirrly
 To remove the Flink application:
 
 ```bash
-kubectl delete flinkdeployment sample-job -n squirrly
+kubectl delete flinkdeployment sample-job --namespace squirrly
 ```
 
 To remove all resources:
@@ -160,7 +162,7 @@ kubectl delete namespace squirrly
 To remove the Flink Kubernetes Operator (if you installed it via the deploy script):
 
 ```bash
-helm uninstall flink-kubernetes-operator -n flink-operator
+helm uninstall flink-kubernetes-operator --namespace flink-operator
 kubectl delete namespace flink-operator
 ```
 
