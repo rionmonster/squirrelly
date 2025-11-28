@@ -7,7 +7,7 @@ JOB_NAME="squirrly-profiler"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-echo "🔬 Running Squirrly Profiler..."
+echo "🐿️ Running Squirrly Profiler..."
 echo ""
 
 # Create/update ConfigMap from profiler.sh script and prompt.md
@@ -27,7 +27,7 @@ fi
 
 # Apply the job (with API key if provided)
 echo "🚀 Creating new profiler job..."
-if [ --namespace "$OPENAI_API_KEY" ]; then
+if [ -n "$OPENAI_API_KEY" ]; then
     echo "🔑 OPENAI_API_KEY found in environment, injecting into job..."
     # Create temporary job file with API key substituted
     TEMP_JOB=$(mktemp)

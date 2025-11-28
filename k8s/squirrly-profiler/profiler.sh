@@ -99,7 +99,7 @@ ARTIFACTS_FOUND=false
 
 # Trigger profiler
 echo ""
-echo "🔬 Triggering Flink Profiler..."
+echo "🐿️ Triggering Flink Profiler..."
 echo "   Type: ${PROFILER_TYPE}"
 echo "   Duration: ${PROFILER_DURATION} seconds"
 
@@ -134,11 +134,11 @@ PROFILER_RESPONSE=$(kubectl exec --namespace ${NAMESPACE} ${JOBMANAGER_POD} -- \
 HTTP_CODE=$(echo "$PROFILER_RESPONSE" | grep "HTTP_CODE:" | cut -d: -f2 || echo "")
 RESPONSE_BODY=$(echo "$PROFILER_RESPONSE" | sed '/HTTP_CODE:/d' || echo "")
 
-if [ --namespace "$HTTP_CODE" ]; then
+if [ -n "$HTTP_CODE" ]; then
     echo "   HTTP Status Code: ${HTTP_CODE}"
     if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "202" ]; then
         echo "   ✅ Profiler triggered successfully"
-        if [ --namespace "$RESPONSE_BODY" ]; then
+        if [ -n "$RESPONSE_BODY" ]; then
             echo "   Response: $RESPONSE_BODY"
             # Check if response contains artifact path information
             if echo "$RESPONSE_BODY" | grep -q "path\|file\|artifact"; then
@@ -183,13 +183,13 @@ if [ --namespace "$HTTP_CODE" ]; then
                     ARTIFACTS=$(kubectl exec --namespace ${NAMESPACE} ${TM_POD} -- \
                         sh -c "${FIND_CMD}" 2>/dev/null || echo "")
                     
-                    if [ --namespace "$ARTIFACTS" ]; then
+                    if [ -n "$ARTIFACTS" ]; then
                         ARTIFACT_LIST=$(echo "$ARTIFACTS" | grep -v '^$' || echo "")
-                        if [ --namespace "$ARTIFACT_LIST" ]; then
+                        if [ -n "$ARTIFACT_LIST" ]; then
                             # Get the most recent artifact (first in sorted list)
                             LATEST_ARTIFACT=$(echo "$ARTIFACT_LIST" | head -1)
                             
-                            if [ --namespace "$LATEST_ARTIFACT" ]; then
+                            if [ -n "$LATEST_ARTIFACT" ]; then
                                 if [ "$ARTIFACTS_FOUND" = "false" ]; then
                                     echo "   ✅ Found profiler artifact!"
                                     ARTIFACTS_FOUND=true
@@ -221,9 +221,9 @@ if [ --namespace "$HTTP_CODE" ]; then
                     echo "   ✅ Profiler completed successfully! Artifacts generated."
                     
                     # Submit artifact to API for analysis
-                    if [ --namespace "$LATEST_ARTIFACT" ]; then
+                    if [ -n "$LATEST_ARTIFACT" ]; then
                         echo ""
-                        echo "   📤 Submitting artifact to ${API_PROVIDER} for analysis..."
+                        echo "   📤 Submitting artifact for analysis..."
                         
                         # Validate API provider and required credentials
                         case "${API_PROVIDER}" in
@@ -326,7 +326,7 @@ if [ --namespace "$HTTP_CODE" ]; then
                                         HTTP_CODE=$(echo "$API_RESPONSE" | grep "HTTP_CODE:" | cut -d: -f2 || echo "")
                                         RESPONSE_BODY=$(echo "$API_RESPONSE" | sed '/HTTP_CODE:/d' || echo "")
                                         
-                                        if [ --namespace "$HTTP_CODE" ]; then
+                                        if [ -n "$HTTP_CODE" ]; then
                                             echo "   HTTP Status Code: ${HTTP_CODE}"
                                             if [ "$HTTP_CODE" = "200" ]; then
                                                 echo "   ✅ Analysis request submitted successfully"
@@ -338,7 +338,7 @@ if [ --namespace "$HTTP_CODE" ]; then
                                                 else
                                                     # Try to extract content using grep/sed if jq not available
                                                     EXTRACTED_CONTENT=$(echo "$RESPONSE_BODY" | grep -o '"content":"[^"]*"' | head -1 | cut -d'"' -f4 || echo "")
-                                                    if [ --namespace "$EXTRACTED_CONTENT" ]; then
+                                                    if [ -n "$EXTRACTED_CONTENT" ]; then
                                                         echo "$EXTRACTED_CONTENT" | sed 's/\\n/\n/g'
                                                     else
                                                         echo "$RESPONSE_BODY" | head -50
@@ -346,13 +346,13 @@ if [ --namespace "$HTTP_CODE" ]; then
                                                 fi
                                             else
                                                 echo "   ❌ OpenAI API request failed with status ${HTTP_CODE}"
-                                                if [ --namespace "$RESPONSE_BODY" ]; then
+                                                if [ -n "$RESPONSE_BODY" ]; then
                                                     echo "   Error response: $RESPONSE_BODY"
                                                 fi
                                             fi
                                         else
                                             echo "   ⚠️ Could not get HTTP response from OpenAI API"
-                                            if [ --namespace "$API_RESPONSE" ]; then
+                                            if [ -n "$API_RESPONSE" ]; then
                                                 echo "   Response: $API_RESPONSE"
                                             fi
                                         fi
@@ -382,13 +382,13 @@ if [ --namespace "$HTTP_CODE" ]; then
         fi
     else
         echo "   ❌ Profiler endpoint returned error status: ${HTTP_CODE}"
-        if [ --namespace "$RESPONSE_BODY" ]; then
+        if [ -n "$RESPONSE_BODY" ]; then
             echo "   Error response: $RESPONSE_BODY"
         fi
     fi
 else
     echo "   ⚠️ Could not trigger profiler (no HTTP response)"
-    if [ --namespace "$PROFILER_RESPONSE" ]; then
+    if [ -n "$PROFILER_RESPONSE" ]; then
         echo "   Response: $PROFILER_RESPONSE"
     fi
 fi
