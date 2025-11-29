@@ -29,6 +29,35 @@ kubectl create configmap squirrly-profiler-script \
 ./scripts/run-profiler.sh
 ```
 
+### Command-Line Options
+
+The `run-profiler.sh` script supports the following options:
+
+- `-o, --output FILE` - Save profiler output to the specified file
+- `--inline` - Display output inline to terminal (this is the default behavior)
+- `-h, --help` - Show help message with usage information
+
+**Examples:**
+
+```bash
+# Display output inline (default)
+./scripts/run-profiler.sh
+
+# Explicitly request inline output
+./scripts/run-profiler.sh --inline
+
+# Save output to a file
+./scripts/run-profiler.sh -o profiler.log
+
+# Save output to a specific directory with timestamp
+./scripts/run-profiler.sh --output ./logs/profiler-$(date +%Y%m%d).log
+
+# Show help
+./scripts/run-profiler.sh --help
+```
+
+**Note:** When using `--output` or `-o`, the script will wait for the profiler job to complete before saving all logs to the file. When using `--inline` (default), the script follows logs in real-time using `kubectl logs -f`.
+
 **Manual options:**
 
 1. Delete and recreate:
@@ -79,7 +108,11 @@ Analysis is **always performed** when a profiler artifact is found and the API k
 To enable analysis, set the `OPENAI_API_KEY` environment variable when running the profiler:
 
 ```bash
+# With inline output (default)
 OPENAI_API_KEY=your-key-here ./scripts/run-profiler.sh
+
+# With file output
+OPENAI_API_KEY=your-key-here ./scripts/run-profiler.sh -o analysis.log
 ```
 
 The script supports multiple API providers via the `API_PROVIDER` environment variable. Currently only `openai` is supported, but the architecture allows for easy extension to other providers.

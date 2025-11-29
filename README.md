@@ -132,9 +132,11 @@ To run the profiler and trigger profiling on the Flink job:
 This will:
 1. Delete any existing profiler job
 2. Create a new profiler job
-3. Optionally follow the logs
+3. Follow the logs in real-time (by default)
 
-The profiler will trigger the Flink profiler on the TaskManager and wait for it to complete. See `k8s/squirrly-profiler/README.md` for more details.
+The profiler will trigger the Flink profiler on the TaskManager and wait for it to complete.
+
+**For detailed information about available command-line options and usage, see the [Profiler README](k8s/squirrly-profiler/README.md#command-line-options).**
 
 ## Monitoring
 
