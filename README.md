@@ -112,7 +112,7 @@ squirrly/
 │       ├── prompt.md                     # Analysis prompt (editable)
 │       └── README.md                     # Profiler documentation
 ├── images/
-│   └── squirrly-flow.png                # Flow diagram
+│   └── squirrly-flow.png                 # Flow diagram
 ├── pom.xml                               # Maven build configuration
 ├── Dockerfile                            # Docker image definition
 ├── scripts/
