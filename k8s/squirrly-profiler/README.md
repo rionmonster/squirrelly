@@ -143,7 +143,3 @@ The profiler uses the same ServiceAccount (`squirrly-service-account`) and RBAC 
 - Exec access to pods (to retrieve artifacts and call REST API)
 
 All permissions are scoped to the `squirrly` namespace.
-
-## Future: Monitor CronJob
-
-A separate `squirrly-monitor` CronJob can be added later to automatically run the profiler on a schedule.
