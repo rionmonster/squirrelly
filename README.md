@@ -105,7 +105,7 @@ squirrly/
 │   │   ├── role.yaml                     # Role (shared)
 │   │   └── rolebinding.yaml              # RoleBinding (shared)
 │   ├── sample-job/
-│   │   └── flink-deployment.yaml        # FlinkDeployment custom resource
+│   │   └── flink-deployment.yaml         # FlinkDeployment custom resource
 │   └── squirrly-profiler/
 │       ├── job.yaml                      # Profiler Job
 │       ├── profiler.sh                   # Profiler script source
