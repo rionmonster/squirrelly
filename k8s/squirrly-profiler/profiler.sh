@@ -520,7 +520,7 @@ print_summary() {
 # Main execution
 parse_arguments "$@"
 
-echo "🔬 squirrelly Profiler - $(date)"
+echo "🔬 Squirrelly Profiler - $(date)"
 echo "=================================="
 echo "Target FlinkDeployment: ${FLINK_DEPLOYMENT_NAME}"
 echo ""

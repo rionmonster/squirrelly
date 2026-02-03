@@ -1,8 +1,8 @@
-# squirrelly - An Example in AI-Boosted Profiling for Apache Flink on Kubernetes
+# Squirrelly - An Example in AI-Boosted Profiling for Apache Flink on Kubernetes
 
-squirrelly is currently a work in progress that aims to provide a pattern (or patterns) for leveraging the existing profiling mechanisms in conjunction with AI tooling to identify and address potential bottlenecks within running jobs.
+Squirrelly is currently a work in progress that aims to provide a pattern (or patterns) for leveraging the existing profiling mechanisms in conjunction with AI tooling to identify and address potential bottlenecks within running jobs.
 
-![squirrelly Flow](images/squirrelly-flow.png)
+![Squirrelly Flow](images/squirrelly-flow.png)
 
 ## Overview
 

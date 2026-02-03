@@ -1,8 +1,8 @@
-# squirrelly Profiler
+# Squirrelly Profiler
 
-The squirrelly Profiler is a one-off Kubernetes Job that discovers FlinkDeployments, triggers the Flink Profiler, and retrieves profiler artifacts.
+The Squirrelly Profiler is a one-off Kubernetes Job that discovers FlinkDeployments, triggers the Flink Profiler, and retrieves profiler artifacts.
 
-![squirrelly Flow](../../images/squirrelly-flow.png)
+![Squirrelly Flow](../../images/squirrelly-flow.png)
 
 ## Deployment
 

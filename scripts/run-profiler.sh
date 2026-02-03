@@ -255,7 +255,7 @@ handle_job_output() {
 # Main execution
 parse_arguments "$@"
 
-echo "🐿️ Running squirrelly Profiler..."
+echo "🐿️ Running Squirrelly Profiler..."
 if [ "$OUTPUT_MODE" = "file" ]; then
     echo "📁 Output will be saved to: ${OUTPUT_FILE}"
 else
