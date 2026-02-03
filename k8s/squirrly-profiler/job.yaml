@@ -1,16 +1,16 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: squirrly-profiler
-  namespace: squirrly
+  name: squirrelly-profiler
+  namespace: squirrelly
 spec:
   ttlSecondsAfterFinished: 3600  # Keep job for 1 hour after completion
   template:
     metadata:
       labels:
-        app: squirrly-profiler
+        app: squirrelly-profiler
     spec:
-      serviceAccountName: squirrly-service-account
+      serviceAccountName: squirrelly-service-account
       restartPolicy: OnFailure
       containers:
       - name: profiler
@@ -22,7 +22,7 @@ spec:
           /scripts/profiler.sh
         env:
         - name: NAMESPACE
-          value: "squirrly"
+          value: "squirrelly"
         - name: FLINK_DEPLOYMENT_NAME
           value: "sample-job"
         - name: PROFILER_TYPE
@@ -44,6 +44,6 @@ spec:
       volumes:
       - name: profiler-script
         configMap:
-          name: squirrly-profiler-script
+          name: squirrelly-profiler-script
           defaultMode: 0755
 

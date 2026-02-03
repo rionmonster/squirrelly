@@ -1,8 +1,8 @@
-# Squirrly Profiler
+# squirrelly Profiler
 
-The Squirrly Profiler is a one-off Kubernetes Job that discovers FlinkDeployments, triggers the Flink Profiler, and retrieves profiler artifacts.
+The squirrelly Profiler is a one-off Kubernetes Job that discovers FlinkDeployments, triggers the Flink Profiler, and retrieves profiler artifacts.
 
-![Squirrly Flow](../../images/squirrly-flow.png)
+![squirrelly Flow](../../images/squirrelly-flow.png)
 
 ## Deployment
 
@@ -15,9 +15,9 @@ kubectl apply -f k8s/resources/
 The profiler script (`profiler.sh`) is the single source of truth. The ConfigMap is automatically generated from it when you run the profiler script. To manually create/update the ConfigMap:
 
 ```bash
-kubectl create configmap squirrly-profiler-script \
-    --from-file=profiler.sh=k8s/squirrly-profiler/profiler.sh \
-    --namespace=squirrly \
+kubectl create configmap squirrelly-profiler-script \
+    --from-file=profiler.sh=k8s/squirrelly-profiler/profiler.sh \
+    --namespace=squirrelly \
     --dry-run=client -o yaml | kubectl apply -f -
 ```
 
@@ -63,22 +63,22 @@ The `run-profiler.sh` script supports the following options:
 1. Delete and recreate:
 ```bash
 # Delete existing job
-kubectl delete job squirrly-profiler --namespace squirrly
+kubectl delete job squirrelly-profiler --namespace squirrelly
 
 # Create new job
-kubectl apply -f k8s/squirrly-profiler/job.yaml
+kubectl apply -f k8s/squirrelly-profiler/job.yaml
 
 # Watch the logs
-kubectl logs --namespace squirrly -f job/squirrly-profiler
+kubectl logs --namespace squirrelly -f job/squirrelly-profiler
 ```
 
 2. Create a new job:
 ```bash
 # Create a new job instance
-kubectl create job --from=job/squirrly-profiler squirrly-profiler-$(date +%Y%m%d-%H%M%S) --namespace squirrly
+kubectl create job --from=job/squirrelly-profiler squirrelly-profiler-$(date +%Y%m%d-%H%M%S) --namespace squirrelly
 
 # Follow logs
-kubectl logs --namespace squirrly -f job/squirrly-profiler-<timestamp>
+kubectl logs --namespace squirrelly -f job/squirrelly-profiler-<timestamp>
 ```
 
 ## Configuration
@@ -88,13 +88,13 @@ The profiler can be configured via environment variables in the Job:
 - `FLINK_DEPLOYMENT_NAME`: Name of the FlinkDeployment to profile - default: sample-job
 - `PROFILER_TYPE`: Type of profiler (CPU, ITIMER, or ALLOC) - default: ITIMER
 - `PROFILER_DURATION`: Duration in seconds - default: 60
-- `NAMESPACE`: Namespace to monitor - default: squirrly
+- `NAMESPACE`: Namespace to monitor - default: squirrelly
 - `PROFILER_OUTPUT_DIR`: Space-separated list of directories to search for profiler artifacts - default: "/tmp /opt/flink/log /opt/flink"
 - `API_PROVIDER`: API provider for analysis - default: "openai" (may add additional ones later)
 - `OPENAI_API_KEY`: OpenAI API key for analysis (can be set from local environment when running `run-profiler.sh`)
 - `ANALYSIS_PROMPT_FILE`: Path to prompt file - default: "/scripts/prompt.md"
 
-The analysis prompt is stored in `k8s/squirrly-profiler/prompt.md` and can be edited separately from the profiler script. 
+The analysis prompt is stored in `k8s/squirrelly-profiler/prompt.md` and can be edited separately from the profiler script. 
 
 ## Analysis
 
@@ -120,7 +120,7 @@ The script supports multiple API providers via the `API_PROVIDER` environment va
 To change configuration, edit the Job:
 
 ```bash
-kubectl edit job squirrly-profiler --namespace squirrly
+kubectl edit job squirrelly-profiler --namespace squirrelly
 ```
 
 ## What It Does
@@ -137,9 +137,9 @@ kubectl edit job squirrly-profiler --namespace squirrly
 
 ## RBAC
 
-The profiler uses the same ServiceAccount (`squirrly-service-account`) and RBAC permissions as the Flink job. The `squirrly-role` Role includes:
+The profiler uses the same ServiceAccount (`squirrelly-service-account`) and RBAC permissions as the Flink job. The `squirrelly-role` Role includes:
 - Read access to FlinkDeployments
 - Read access to pods and services
 - Exec access to pods (to retrieve artifacts and call REST API)
 
-All permissions are scoped to the `squirrly` namespace.
+All permissions are scoped to the `squirrelly` namespace.

@@ -5,12 +5,12 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.squirrly</groupId>
-    <artifactId>squirrly</artifactId>
+    <groupId>dev.squirrelly</groupId>
+    <artifactId>squirrelly</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>Squirrly</name>
+    <name>squirrelly</name>
     <description>Simple Apache Flink streaming job written in Kotlin</description>
 
     <properties>
@@ -19,7 +19,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <kotlin.version>2.0.0</kotlin.version>
         <flink.version>2.0.1</flink.version>
-        <main.class>dev.squirrly.SimpleFlinkJob</main.class>
+        <main.class>dev.squirrelly.SimpleFlinkJob</main.class>
     </properties>
 
     <repositories>

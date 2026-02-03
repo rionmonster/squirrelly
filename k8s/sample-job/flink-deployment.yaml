@@ -2,11 +2,11 @@ apiVersion: flink.apache.org/v1beta1
 kind: FlinkDeployment
 metadata:
   name: sample-job
-  namespace: squirrly
+  namespace: squirrelly
 spec:
   image: sample-job:latest
   flinkVersion: v2_0
-  serviceAccount: squirrly-service-account
+  serviceAccount: squirrelly-service-account
   flinkConfiguration:
     taskmanager.numberOfTaskSlots: "2"
     parallelism.default: "2"
@@ -22,7 +22,7 @@ spec:
     replicas: 1
   job:
     jarURI: local:///opt/flink/lib/sample-job.jar
-    entryClass: dev.squirrly.SimpleFlinkJob
+    entryClass: dev.squirrelly.SimpleFlinkJob
     parallelism: 2
     upgradeMode: stateless
 

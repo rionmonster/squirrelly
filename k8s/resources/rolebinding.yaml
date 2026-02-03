@@ -1,14 +1,14 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: squirrly-rolebinding
-  namespace: squirrly
+  name: squirrelly-rolebinding
+  namespace: squirrelly
 subjects:
 - kind: ServiceAccount
-  name: squirrly-service-account
-  namespace: squirrly
+  name: squirrelly-service-account
+  namespace: squirrelly
 roleRef:
   kind: Role
-  name: squirrly-role
+  name: squirrelly-role
   apiGroup: rbac.authorization.k8s.io
 

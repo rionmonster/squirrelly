@@ -10,7 +10,7 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 # Change to project root so all paths work correctly
 cd "${PROJECT_ROOT}"
 
-NAMESPACE="squirrly"
+NAMESPACE="squirrelly"
 IMAGE_NAME="sample-job"
 IMAGE_TAG="latest"
 FLINK_UI_PORT=8081
@@ -177,7 +177,7 @@ setup_port_forwarding() {
 }
 
 # Main execution
-echo "🚀 Deploying Squirrly Flink Job to Kubernetes using Flink Kubernetes Operator..."
+echo "🚀 Deploying squirrelly Flink Job to Kubernetes using Flink Kubernetes Operator..."
 
 ensure_minikube_running
 ensure_flink_operator_installed

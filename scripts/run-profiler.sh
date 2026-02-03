@@ -2,8 +2,8 @@
 
 set -e
 
-NAMESPACE="${NAMESPACE:-squirrly}"
-JOB_NAME="squirrly-profiler"
+NAMESPACE="${NAMESPACE:-squirrelly}"
+JOB_NAME="squirrelly-profiler"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -51,9 +51,9 @@ parse_arguments() {
 # Create/update ConfigMap (for profiler.sh script and prompt.md)
 create_profiler_configmap() {
     echo "📝 Creating/updating ConfigMap from profiler.sh and prompt.md..."
-    kubectl create configmap squirrly-profiler-script \
-        --from-file=profiler.sh=${PROJECT_ROOT}/k8s/squirrly-profiler/profiler.sh \
-        --from-file=prompt.md=${PROJECT_ROOT}/k8s/squirrly-profiler/prompt.md \
+    kubectl create configmap squirrelly-profiler-script \
+        --from-file=profiler.sh=${PROJECT_ROOT}/k8s/squirrelly-profiler/profiler.sh \
+        --from-file=prompt.md=${PROJECT_ROOT}/k8s/squirrelly-profiler/prompt.md \
         --namespace=${NAMESPACE} \
         --dry-run=client -o yaml | kubectl apply -f -
 }
@@ -95,13 +95,13 @@ apply_profiler_job() {
             next
         }
         { print }
-        ' ${PROJECT_ROOT}/k8s/squirrly-profiler/job.yaml > ${temp_job}
+        ' ${PROJECT_ROOT}/k8s/squirrelly-profiler/job.yaml > ${temp_job}
         
         kubectl apply -f ${temp_job}
         rm -f ${temp_job}
     else
         echo "ℹ️ OPENAI_API_KEY not set in environment (analysis will be skipped unless API key is configured)"
-        kubectl apply -f ${PROJECT_ROOT}/k8s/squirrly-profiler/job.yaml
+        kubectl apply -f ${PROJECT_ROOT}/k8s/squirrelly-profiler/job.yaml
     fi
 }
 
@@ -255,7 +255,7 @@ handle_job_output() {
 # Main execution
 parse_arguments "$@"
 
-echo "🐿️ Running Squirrly Profiler..."
+echo "🐿️ Running squirrelly Profiler..."
 if [ "$OUTPUT_MODE" = "file" ]; then
     echo "📁 Output will be saved to: ${OUTPUT_FILE}"
 else

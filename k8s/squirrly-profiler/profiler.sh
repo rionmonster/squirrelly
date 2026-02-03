@@ -2,7 +2,7 @@
 
 set -e
 
-NAMESPACE="${NAMESPACE:-squirrly}"
+NAMESPACE="${NAMESPACE:-squirrelly}"
 FLINK_DEPLOYMENT_NAME="${FLINK_DEPLOYMENT_NAME:-sample-job}"  # Name of the FlinkDeployment to profile
 PROFILER_TYPE="${PROFILER_TYPE:-ITIMER}"      # CPU, ITIMER, or ALLOC
 PROFILER_DURATION="${PROFILER_DURATION:-60}"  # Duration in seconds
@@ -427,7 +427,7 @@ output_analysis_results() {
     if [ -n "${OUTPUT_DIR}" ]; then
         local timestamp_safe=$(date +%Y%m%d_%H%M%S)
         mkdir -p "${OUTPUT_DIR}" || true
-        local output_file_path="${OUTPUT_DIR}/squirrly_analysis_${timestamp_safe}.txt"
+        local output_file_path="${OUTPUT_DIR}/squirrelly_analysis_${timestamp_safe}.txt"
         echo "$analysis_output" > "${output_file_path}"
         echo "   📁 Analysis written to ${output_file_path}"
     elif [ -n "${OUTPUT_FILE}" ]; then
@@ -520,7 +520,7 @@ print_summary() {
 # Main execution
 parse_arguments "$@"
 
-echo "🔬 Squirrly Profiler - $(date)"
+echo "🔬 squirrelly Profiler - $(date)"
 echo "=================================="
 echo "Target FlinkDeployment: ${FLINK_DEPLOYMENT_NAME}"
 echo ""

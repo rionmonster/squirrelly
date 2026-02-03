@@ -1,8 +1,8 @@
-# Squirrly - An Example in AI-Boosted Profiling for Apache Flink on Kubernetes
+# squirrelly - An Example in AI-Boosted Profiling for Apache Flink on Kubernetes
 
-Squirrly is currently a work in progress that aims to provide a pattern (or patterns) for leveraging the existing profiling mechanisms in conjunction with AI tooling to identify and address potential bottlenecks within running jobs.
+squirrelly is currently a work in progress that aims to provide a pattern (or patterns) for leveraging the existing profiling mechanisms in conjunction with AI tooling to identify and address potential bottlenecks within running jobs.
 
-![Squirrly Flow](images/squirrly-flow.png)
+![squirrelly Flow](images/squirrelly-flow.png)
 
 ## Overview
 
@@ -80,7 +80,7 @@ This script will:
 1. Check for and install the Flink Kubernetes Operator (if needed)
 2. Build the Kotlin Flink job
 3. Build the Docker image with the JAR
-4. Create the `squirrly` namespace in Kubernetes
+4. Create the `squirrelly` namespace in Kubernetes
 5. Deploy the Flink application using a FlinkDeployment custom resource
 6. Set up port forwarding for the Flink UI
 
@@ -95,8 +95,8 @@ After deploying, you should be able to access the Flink UI for the job running a
 ## Project Structure
 
 ```
-squirrly/
-├── src/main/kotlin/dev/squirrly/
+squirrelly/
+├── src/main/kotlin/dev/squirrelly/
 │   └── SimpleFlinkJob.kt                 # Main Flink streaming job
 ├── k8s/
 │   ├── resources/                        # Shared infrastructure resources
@@ -106,13 +106,13 @@ squirrly/
 │   │   └── rolebinding.yaml              # RoleBinding (shared)
 │   ├── sample-job/
 │   │   └── flink-deployment.yaml         # FlinkDeployment custom resource
-│   └── squirrly-profiler/
+│   └── squirrelly-profiler/
 │       ├── job.yaml                      # Profiler Job
 │       ├── profiler.sh                   # Profiler script source
 │       ├── prompt.md                     # Analysis prompt (editable)
 │       └── README.md                     # Profiler documentation
 ├── images/
-│   └── squirrly-flow.png                 # Flow diagram
+│   └── squirrelly-flow.png                 # Flow diagram
 ├── pom.xml                               # Maven build configuration
 ├── Dockerfile                            # Docker image definition
 ├── scripts/
@@ -136,7 +136,7 @@ This will:
 
 The profiler will trigger the Flink profiler on the TaskManager and wait for it to complete.
 
-**For detailed information about available command-line options and usage, see the [Profiler README](k8s/squirrly-profiler/README.md#command-line-options).**
+**For detailed information about available command-line options and usage, see the [Profiler README](k8s/squirrelly-profiler/README.md#command-line-options).**
 
 ## Monitoring
 
@@ -145,8 +145,8 @@ Once deployed, you can monitor the Flink job through the **Flink Web UI** at htt
 ### Checking FlinkDeployment Status
 
 ```bash
-kubectl get flinkdeployment sample-job --namespace squirrly
-kubectl describe flinkdeployment sample-job --namespace squirrly
+kubectl get flinkdeployment sample-job --namespace squirrelly
+kubectl describe flinkdeployment sample-job --namespace squirrelly
 ```
 
 ## Cleanup
@@ -154,13 +154,13 @@ kubectl describe flinkdeployment sample-job --namespace squirrly
 To remove the Flink application:
 
 ```bash
-kubectl delete flinkdeployment sample-job --namespace squirrly
+kubectl delete flinkdeployment sample-job --namespace squirrelly
 ```
 
 To remove all resources:
 
 ```bash
-kubectl delete namespace squirrly
+kubectl delete namespace squirrelly
 ```
 
 To remove the Flink Kubernetes Operator (if you installed it via the deploy script):
